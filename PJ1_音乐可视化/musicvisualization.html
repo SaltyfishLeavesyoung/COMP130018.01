@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+      #buttons{width: auto; display: table; margin: 0 auto;}
+    </style>
+    <title>音乐可视化</title>
+</head>
+<body>
+  <div>
+    <div class="page-header">
+      <h1 id="musicName" align="center">未选择音乐</h1>
+    </div>
+    <div class="container">
+      <canvas id="area" width="900" height="480"></canvas>
+    </div>
+    <div class="btn-group btn-group-lg" id="buttons">
+      <audio id="music" src=""></audio>
+      <input class="btn btn-primary" type="submit" name="search" value="选择文件" onClick="return selectMusic()"/>
+      <input id="submitMusic" type="file" accept="audio/mp3" style="display: none" onchange="return setName()"/>
+      <button type="submit" class="btn btn-primary" onClick="return play()">播放</button>
+    </div>
+  </div>
+</body>
+<!-- 参考资料：https://github.com/whxaxes/canvas-test/tree/gh-pages/src/Funny-demo/musicPlayer -->
+<script language="javascript">
+  var canvas = document.getElementById("area");
+  var context = canvas.getContext("2d");
+  var AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+  var AC, analyser, gainnode, audio, audioSource, bufferSource, musicbuffer;
+  function selectMusic(){
+    var btn = document.getElementById("submitMusic");
+    btn.click();
+  }
+  function setName(){
+    AC = new AudioContext();
+    analyser = AC.createAnalyser();
+    gainnode = AC.createGain();
+    gainnode.gain.value = 1;
+    var file = document.getElementById("submitMusic").files[0];
+    document.getElementById("musicName").innerHTML = file.name.substring(0, file.name.lastIndexOf('.'));
+    var fr = new FileReader();
+    fr.readAsArrayBuffer(file);
+    fr.onload = function (e) {
+      AC.decodeAudioData(e.target.result, function(buffer){
+        musicbuffer = buffer;
+      }, function(e){
+        alert("文件解码失败。");
+      })
+    }
+  }
+  function play(){
+    if(bufferSource){
+      bufferSource.stop();
+    }
+    initialbar();
+    var source;
+    bufferSource = AC.createBufferSource();
+    bufferSource.buffer = musicbuffer;
+    setTimeout(function() {
+      bufferSource.start()
+    }, 0);
+    source = bufferSource;
+    source.connect(analyser);
+    analyser.connect(gainnode);
+    gainnode.connect(AC.destination);
+  }
+  var bararray = [];
+  var length = 50;
+
+  function initialbar(){
+    var width = canvas.width / length;
+    for(var i = 0; i < length; i ++){
+      bararray.push(new Bar(width - 5, 5, i * width, canvas.height));
+    }
+    showbar();
+  }
+  function showbar(){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    var array_l = analyser.frequencyBinCount;
+    var array = new Uint8Array(array_l);
+    analyser.getByteFrequencyData(array);
+    var portion = array_l / canvas.width;
+    for (var i = 0; i < length; i++) {
+        var rt = bararray[i];
+        rt.index = ('index' in rt) ? rt.index : ~~(rt.x * portion);
+        rt.update(array[rt.index]);
+    }
+    window.setTimeout(showbar, 1000 / 60);
+  }
+  function randomColor(){
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  function Bar(w, h, x, y){
+    this.w = w;
+    this.h = h;
+    this.x = x;
+    this.y = y;
+    this.jg = 3;
+    this.power = 0;
+    this.num = 0;
+  }
+  Bar.prototype.update = function(power){
+    this.power = power;
+    this.num = ~~(this.power / this.h + 0.5);
+    context.fillStyle = context.createLinearGradient(0, 110, 0, 270);
+    context.fillStyle.addColorStop(1, randomColor());
+    var h = (~~(this.power / (this.h + this.jg))) * (this.h + this.jg);
+    context.fillRect(this.x, this.y - h, this.w, h);
+    for (var i = 0; i < this.num; i++) {
+      var y = this.y - i * (this.h + this.jg);
+      context.clearRect(this.x - 1, y, this.w + 2, this.jg);
+    }
+  }
+</script>
+</html>

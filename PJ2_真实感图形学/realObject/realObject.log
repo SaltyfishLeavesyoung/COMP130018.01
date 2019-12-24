@@ -1,0 +1,10 @@
+﻿  main.cpp
+C:\Users\yeziy\Desktop\realObject\main.cpp(91,22): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(165,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(166,11): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(170,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(171,16): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(173,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(174,10): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+C:\Users\yeziy\Desktop\realObject\main.cpp(183,28): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+  realObject.vcxproj -> C:\Users\yeziy\Desktop\realObject\Debug\realObject.exe
